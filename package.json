@@ -1,20 +1,28 @@
 {
-  "name": "photoeditor-web",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "vue": "^3.3.4"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^4.2.3",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.0",
-    "vue-tsc": "^1.8.3"
-  }
+    "name": "photoeditor-web",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vue-tsc && vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "pinia": "^2.1.4",
+        "vue": "^3.3.4"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^4.2.3",
+        "typescript": "^5.0.2",
+        "vite": "^4.4.0",
+        "vue-tsc": "^1.8.3",
+        "@typescript-eslint/eslint-plugin": "^5.0.1",
+        "@typescript-eslint/parser": "^5.0.1",
+        "eslint": "^8.7.0",
+        "eslint-config-prettier": "^6.11.0",
+        "eslint-plugin-prettier": "^3.1.4",
+        "prettier": "^2.5.1",
+        "vue-eslint-parser": "^8.0.0"
+    }
 }
