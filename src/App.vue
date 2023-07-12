@@ -1,22 +1,41 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue';
+import ThumbnailList from './components/ThumbnailList.vue';
+import { useFileStore } from './store/OpenFile';
+const fileStore = useFileStore();
 </script>
 
 <template>
-    <HelloWorld msg="Hello World" />
+    <div class="root">
+        <div class="left">
+            <ThumbnailList :srcs="[]" />
+        </div>
+        <div class="right"></div>
+    </div>
+    <div class="open-button">
+        <div @click="fileStore.openDirectory">OpenFile</div>
+    </div>
 </template>
 
 <style scoped>
-.logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+.root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    display: flex;
 }
-.logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+
+.left {
+    width: 20%;
 }
-.logo.vue:hover {
-    filter: drop-shadow(0 0 2em #42b883aa);
+
+.right {
+    flex: 1;
+}
+
+.open-button {
+    position: absolute;
+    z-index: 99;
 }
 </style>

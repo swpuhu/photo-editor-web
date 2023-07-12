@@ -1,43 +1,16 @@
+//.eslintrc.js里的配置
 module.exports = {
+    /* 指定如何解析语法。可以为空，但若不为空，只能配该值，原因见下文。*/
+    parser: 'vue-eslint-parser',
+    /* 扩展配置，加一些插件 */
     extends: [
-        'eslint:recommended',
-        'plugin:@typescript-eslint/eslint-recommended',
-        'plugin:@typescript-eslint/recommended',
-        'prettier/@typescript-eslint',
-        'plugin:prettier/recommended'
+        'plugin:vue/recommended' /* eslint应用在vue的必须配置 */,
+        'plugin:prettier/recommended' /* 使用Prettier */
     ],
-    parser: '@typescript-eslint/parser',
-    env: {
-        node: true,
-        es6: true
-    },
+    /* 优先级低于parse的语法解析配置 */
     parserOptions: {
-        tsconfigRootDir: __dirname,
-        ecmaVersion: 2017,
-        sourceType: 'module',
-        ecmaFeatures: {
-            impliedStrict: true
-        }
-    },
-    plugins: ['@typescript-eslint', 'prettier'],
-    rules: {
-        'prettier/prettier': 'error',
-        '@typescript-eslint/no-unused-vars': 'error',
-        '@typescript-eslint/no-empty-function': 'off',
-        '@typescript-eslint/no-inferrable-types': 'off',
-        '@typescript-eslint/explicit-function-return-type': [
-            'error',
-            {
-                allowExpressions: true
-            }
-        ],
-        '@typescript-eslint/explicit-member-accessibility': 'off',
-        '@typescript-eslint/no-non-null-assertion': 'error',
-        '@typescript-eslint/camelcase': 'off',
-        '@typescript-eslint/no-var-requires': 'off',
-        '@typescript-eslint/no-explicit-any': 'off',
-        'no-console': 'off',
-        '@typescript-eslint/indent': ['off', 4, { SwitchCase: 1 }],
-        'no-prototype-builtins': 'off'
+        parser: '@typescript-eslint/parser' /* 解析ts语法 */,
+        ecmaVersion: 2018,
+        sourceType: 'module'
     }
-};
+}
