@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ThumbnailList from './components/ThumbnailList.vue';
+import Canvas from './components/Canvas.vue';
 import { useFileStore } from './store/OpenFile';
 const fileStore = useFileStore();
 </script>
@@ -7,9 +8,11 @@ const fileStore = useFileStore();
 <template>
     <div class="root">
         <div class="left">
-            <ThumbnailList :srcs="[]" />
+            <ThumbnailList :srcs="fileStore.fileUrls" />
         </div>
-        <div class="right"></div>
+        <div class="right">
+            <Canvas></Canvas>
+        </div>
     </div>
     <div class="open-button">
         <div @click="fileStore.openDirectory">OpenFile</div>

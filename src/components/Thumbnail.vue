@@ -8,4 +8,10 @@ defineProps<{ src: string }>();
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.thumbnail img {
+    width: 100%;
+    font-size: 0;
+    margin: 2px 0;
+}
+</style>
