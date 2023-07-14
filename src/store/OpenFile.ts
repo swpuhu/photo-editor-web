@@ -1,11 +1,11 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
 export const useFileStore = defineStore('file', () => {
     const fileNames = ref(['']);
     const fileUrls = ref(['']);
     const fileBlobs = ref([Blob]);
-    
+
     async function openDirectory() {
         fileNames.value.length = 0;
         fileUrls.value.length = 0;
@@ -24,5 +24,5 @@ export const useFileStore = defineStore('file', () => {
         }
     }
 
-    return { fileNames, fileBlobs, fileUrls, openDirectory }
-})
+    return { fileNames, fileBlobs, fileUrls, openDirectory };
+});
