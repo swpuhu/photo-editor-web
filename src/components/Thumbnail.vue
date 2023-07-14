@@ -1,10 +1,13 @@
 <script setup lang="ts">
-defineProps<{ src: string }>();
+defineProps<{
+    src: string;
+    onClick: () => void;
+}>();
 </script>
 
 <template>
     <div class="thumbnail">
-        <img :src="src" />
+        <img :src="src" @click="$props.onClick" />
     </div>
 </template>
 

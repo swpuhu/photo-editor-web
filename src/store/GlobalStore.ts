@@ -14,5 +14,9 @@ export const useGlobalStore = defineStore('global', () => {
         return '';
     });
 
-    return { currentIndex, currentImg };
+    const setCurrentIndex = (index: number) => {
+        currentIndex.value = index;
+    }
+
+    return { currentIndex, currentImg, setCurrentIndex };
 });
