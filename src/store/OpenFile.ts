@@ -13,7 +13,6 @@ export const useFileStore = defineStore('file', () => {
         const fileHandle = await showDirectoryPicker();
         const entries = await (fileHandle as any).entries();
         for await (const [_key, value] of entries) {
-            console.log(value);
             if ((value as FileSystemFileHandle).kind === 'file') {
                 const file = await (value as FileSystemFileHandle).getFile();
                 if (file.type === 'image/png' || file.type === 'image/jpeg') {

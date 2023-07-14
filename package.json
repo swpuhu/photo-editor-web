@@ -9,6 +9,7 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@types/lodash": "^4.14.195",
         "gl-matrix": "^3.4.3",
         "lodash": "^4.17.21",
         "pinia": "^2.1.4",
