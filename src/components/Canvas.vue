@@ -1,82 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import {
-    Camera,
-    Mesh,
-    Node,
-    SimpleEngine,
-} from '../../submodule/renderer/index';
-import { Geometry } from '../../submodule/renderer';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { Camera, Node, SimpleEngine } from '../../submodule/renderer/index';
 import { Scene } from '../../submodule/renderer/Scene';
 import { Sprite } from '../../submodule/renderer/script/Sprite';
+import { SolidColor } from '../../submodule/renderer/script/SolidColor';
 import { useGlobalStore } from '../store/GlobalStore';
 
 import { Node2D } from '../../submodule/renderer/Node2D';
 import { Event } from '../../submodule/renderer/Event';
 import { TouchEvent } from '../../submodule/renderer/Event';
-import { SpriteDefaultMaterial } from '../../submodule/renderer/material/SpriteDefaultMaterial';
-
+let scene: Scene;
 let engine: SimpleEngine;
 let sprite: Sprite;
-let geo: Geometry;
 let canvasDom: HTMLCanvasElement;
 let rootDom: HTMLElement;
 const canvasRef = ref(null);
 const rootRef = ref(null);
-const aspect = ref(1);
-const styleWidth = ref(0);
-const styleHeight = ref(0);
-const styleLeft = ref(0);
-const styleTop = ref(0);
 
 let parentWidth = 0;
 let parentHeight = 0;
 let imgDisplayNode: Node2D;
-
-const computeWidth = (): number => {
-    if (!rootDom) {
-        return 0;
-    }
-    if (aspect.value >= 1) {
-        return rootDom.parentElement?.clientWidth!;
-    } else {
-        return rootDom.parentElement?.clientHeight! * aspect.value;
-    }
-};
-const computeHeight = (): number => {
-    if (!rootDom) {
-        return 0;
-    }
-    if (aspect.value >= 1) {
-        return rootDom.parentElement?.clientWidth! / aspect.value;
-    } else {
-        return rootDom.parentElement?.clientHeight!;
-    }
-};
-
-const computeStyleLeft = () => {
-    if (!rootDom) {
-        return;
-    }
-    if (aspect.value >= 1) {
-        styleLeft.value = 0;
-    } else {
-        const parentWidth = rootDom.parentElement?.clientWidth!;
-        styleLeft.value = (parentWidth - styleWidth.value) / 2;
-    }
-};
-
-const computeStyleTop = () => {
-    if (!rootDom) {
-        return;
-    }
-    if (aspect.value >= 1) {
-        const parentHeight = rootDom.parentElement?.clientHeight!;
-        styleTop.value = (parentHeight - styleHeight.value) / 2;
-    } else {
-        styleTop.value = 0;
-    }
-};
 const globalStore = useGlobalStore();
 globalStore.$subscribe(async () => {
     if (!canvasDom || !engine) {
@@ -106,6 +49,7 @@ globalStore.$subscribe(async () => {
 });
 
 const initScene = () => {
+    console.log('init scene!');
     rootDom = rootRef.value as unknown as HTMLElement;
     canvasDom = canvasRef.value as unknown as HTMLCanvasElement;
 
@@ -113,13 +57,15 @@ const initScene = () => {
     parentHeight = rootDom.parentElement?.clientHeight!;
     canvasDom.width = parentWidth;
     canvasDom.height = parentHeight;
-    const gl = canvasDom.getContext('webgl2');
+    const gl = canvasDom.getContext('webgl2', {
+        alpha: false,
+    });
+
     const width = canvasDom.width;
     const height = canvasDom.height;
     console.log(width, height);
     engine = new SimpleEngine(gl!);
-    geo = Geometry.getQuad(width, height);
-    const scene = new Scene('scene');
+    scene = new Scene('scene');
     const root = new Node('root');
     root.x = parentWidth / 2;
     root.y = parentHeight / 2;
@@ -133,10 +79,18 @@ const initScene = () => {
         console.log('click', e);
     });
 
+    let node2 = new Node2D('test white');
+    node2.width = 300;
+    node2.height = 300;
+    const solidColor = node2.addScript(SolidColor);
+    solidColor.setColor(1, 0.5, 0, 1);
+    node2.x = 0;
+    node2.y = 0;
+    root.addChildren(node2);
+
     root.on(Event.TOUCH, (e: TouchEvent) => {
         console.log('click from root');
     });
-    const mat = new SpriteDefaultMaterial();
     const cam = new Camera(0, width, 0, height, -100, 100, 'orthoCam');
     // new Mesh(geo, mat, root);
     scene.addChildren(root);
@@ -146,9 +100,24 @@ const initScene = () => {
     engine.run();
 };
 
+const destroyScene = () => {
+    if (scene) {
+        scene.destroy();
+    }
+    if (engine) {
+        engine.destroy();
+    }
+};
+
 onMounted(() => {
     initScene();
 });
+
+onUnmounted(() => {
+    destroyScene();
+});
+
+// window.destroy = destroyScene;
 </script>
 
 <template>
