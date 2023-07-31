@@ -3,7 +3,9 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { Camera, Node, SimpleEngine } from '../../submodule/renderer/index';
 import { Scene } from '../../submodule/renderer/Scene';
 import { Sprite } from '../../submodule/renderer/script/Sprite';
+import { ClippingFrame } from '../script/ClippingFrame';
 import { SolidColor } from '../../submodule/renderer/script/SolidColor';
+import { SolidColorMaterial } from '../../submodule/renderer/material/SolidColorMaterial';
 import { useGlobalStore } from '../store/GlobalStore';
 
 import { Node2D } from '../../submodule/renderer/Node2D';
@@ -65,6 +67,7 @@ const initScene = () => {
     const height = canvasDom.height;
     console.log(width, height);
     engine = new SimpleEngine(gl!);
+    window.engine = engine;
     scene = new Scene('scene');
     const root = new Node('root');
     root.x = parentWidth / 2;
@@ -82,8 +85,9 @@ const initScene = () => {
     let node2 = new Node2D('test white');
     node2.width = 300;
     node2.height = 300;
-    const solidColor = node2.addScript(SolidColor);
-    solidColor.setColor(1, 0.5, 0, 1);
+    const solidColor = node2.addScript(ClippingFrame);
+    // solidColor.setMaterial(new SolidColorMaterial());
+    // solidColor.setColor(1, 0.5, 0, 1);
     node2.x = 0;
     node2.y = 0;
     root.addChildren(node2);
