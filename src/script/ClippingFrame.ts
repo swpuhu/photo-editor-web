@@ -4,7 +4,10 @@ import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import { SolidColorMaterial } from '@simple-render-engine/renderer/material/SolidColorMaterial';
 import { EngineScript } from '@simple-render-engine/renderer/script/EngineScript';
 import { SolidColor } from '@simple-render-engine/renderer/script/SolidColor';
-import { createHierarchyTree } from '@simple-render-engine/renderer/script/util';
+import {
+    angle2Rad,
+    createHierarchyTree,
+} from '@simple-render-engine/renderer/script/util';
 const DEFAULT_LINE_WIDTH = 2;
 export class ClippingFrame extends EngineScript {
     private __leftTopCtr: Node2D | null = null;

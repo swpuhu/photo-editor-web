@@ -7,6 +7,7 @@ import { Camera, Node, SimpleEngine } from '@simple-render-engine/renderer';
 import { Sprite } from '@simple-render-engine/renderer/script/Sprite';
 import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import { Event } from '@simple-render-engine/renderer/Event';
+import { angle2Rad } from '@simple-render-engine/renderer/script/util';
 
 let scene: Scene;
 let engine: SimpleEngine;
@@ -83,6 +84,7 @@ const initScene = () => {
     node2.width = 100;
     node2.height = 100;
     const solidColor = node2.addScript(ClippingFrame);
+    node2.rotation = angle2Rad(45);
     // const mat = new SolidColorMaterial();
 
     // for (let i = -1; i <= 1; i++) {
