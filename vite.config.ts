@@ -8,7 +8,8 @@ import { join } from 'path';
 export default defineConfig({
     resolve: {
         alias: {
-            '@': join(__dirname, '/'),
+            '@simple-render-engine': join(__dirname, '/simple-render-engine'),
+            '@src': join(__dirname, '/src'),
         },
     },
 

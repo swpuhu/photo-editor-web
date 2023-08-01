@@ -2,13 +2,11 @@
 import { onMounted, onUnmounted, ref } from 'vue';
 import { ClippingFrame } from '../script/ClippingFrame';
 import { useGlobalStore } from '../store/GlobalStore';
-import { Scene } from '@/simple-render-engine/renderer/Scene';
-import { Camera, Node, SimpleEngine } from '@/simple-render-engine/renderer';
-import { Sprite } from '@/simple-render-engine/renderer/script/Sprite';
-import { Node2D } from '@/simple-render-engine/renderer/Node2D';
-import { Event } from '@/simple-render-engine/renderer/Event';
-import { SolidColor } from '@/simple-render-engine/renderer/script/SolidColor';
-import { SolidColorMaterial } from '@/simple-render-engine/renderer/material/SolidColorMaterial';
+import { Scene } from '@simple-render-engine/renderer/Scene';
+import { Camera, Node, SimpleEngine } from '@simple-render-engine/renderer';
+import { Sprite } from '@simple-render-engine/renderer/script/Sprite';
+import { Node2D } from '@simple-render-engine/renderer/Node2D';
+import { Event } from '@simple-render-engine/renderer/Event';
 
 let scene: Scene;
 let engine: SimpleEngine;

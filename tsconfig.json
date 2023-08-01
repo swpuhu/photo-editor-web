@@ -7,7 +7,8 @@
         "skipLibCheck": true,
         "baseUrl": ".",
         "paths": {
-            "@/*": ["./*"]
+            "@simple-render-engine/*": ["./simple-render-engine/*"],
+            "@src/*": ["./src/*"]
         },
         "experimentalDecorators": true,
 

@@ -1,9 +1,9 @@
-import { Material } from '@/simple-render-engine/renderer';
-import { Event, TouchEvent } from '@/simple-render-engine/renderer/Event';
-import { Node2D } from '@/simple-render-engine/renderer/Node2D';
-import { SolidColorMaterial } from '@/simple-render-engine/renderer/material/SolidColorMaterial';
-import { EngineScript } from '@/simple-render-engine/renderer/script/EngineScript';
-import { SolidColor } from '@/simple-render-engine/renderer/script/SolidColor';
+import { Material } from '@simple-render-engine/renderer';
+import { Event, TouchEvent } from '@simple-render-engine/renderer/Event';
+import { Node2D } from '@simple-render-engine/renderer/Node2D';
+import { SolidColorMaterial } from '@simple-render-engine/renderer/material/SolidColorMaterial';
+import { EngineScript } from '@simple-render-engine/renderer/script/EngineScript';
+import { SolidColor } from '@simple-render-engine/renderer/script/SolidColor';
 const DEFAULT_LINE_WIDTH = 2;
 export class ClippingFrame extends EngineScript {
     private __leftTopCtr: Node2D | null = null;
@@ -48,7 +48,7 @@ export class ClippingFrame extends EngineScript {
     }
 
     private __bindEvents(): void {
-        this.node.on(Event.TOUCH, e => {
+        this.node.on(Event.TOUCH, (e) => {
             console.log('clipping frame', e);
         });
 
