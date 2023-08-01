@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
-import { Camera, Node, SimpleEngine } from '../../submodule/renderer/index';
-import { Scene } from '../../submodule/renderer/Scene';
-import { Sprite } from '../../submodule/renderer/script/Sprite';
 import { ClippingFrame } from '../script/ClippingFrame';
-import { SolidColor } from '../../submodule/renderer/script/SolidColor';
-import { SolidColorMaterial } from '../../submodule/renderer/material/SolidColorMaterial';
 import { useGlobalStore } from '../store/GlobalStore';
+import { Scene } from '@/simple-render-engine/renderer/Scene';
+import { Camera, Node, SimpleEngine } from '@/simple-render-engine/renderer';
+import { Sprite } from '@/simple-render-engine/renderer/script/Sprite';
+import { Node2D } from '@/simple-render-engine/renderer/Node2D';
+import { Event } from '@/simple-render-engine/renderer/Event';
+import { SolidColor } from '@/simple-render-engine/renderer/script/SolidColor';
+import { SolidColorMaterial } from '@/simple-render-engine/renderer/material/SolidColorMaterial';
 
-import { Node2D } from '../../submodule/renderer/Node2D';
-import { Event } from '../../submodule/renderer/Event';
-import { TouchEvent } from '../../submodule/renderer/Event';
 let scene: Scene;
 let engine: SimpleEngine;
 let sprite: Sprite;
@@ -73,8 +72,8 @@ const initScene = () => {
     root.x = parentWidth / 2;
     root.y = parentHeight / 2;
     imgDisplayNode = new Node2D('img');
-    imgDisplayNode.width = 100;
-    imgDisplayNode.height = 100;
+    imgDisplayNode.width = 10;
+    imgDisplayNode.height = 10;
     sprite = imgDisplayNode.addScript(Sprite);
     root.addChildren(imgDisplayNode);
 
@@ -83,11 +82,24 @@ const initScene = () => {
     });
 
     let node2 = new Node2D('test white');
-    node2.width = 300;
-    node2.height = 300;
+    node2.width = 100;
+    node2.height = 100;
     const solidColor = node2.addScript(ClippingFrame);
-    // solidColor.setMaterial(new SolidColorMaterial());
-    // solidColor.setColor(1, 0.5, 0, 1);
+    // const mat = new SolidColorMaterial();
+
+    // for (let i = -1; i <= 1; i++) {
+    //     const nc1 = new Node2D('child1');
+    //     nc1.width = 10;
+    //     nc1.height = 10;
+    //     nc1.x = i * 100;
+    //     nc1.y = 50;
+
+    //     const comp = nc1.addScript(SolidColor);
+    //     comp.setMaterial(mat);
+    //     node2.addChildren(nc1);
+    // }
+
+    // solidColor.setMaterial(mat);
     node2.x = 0;
     node2.y = 0;
     root.addChildren(node2);
