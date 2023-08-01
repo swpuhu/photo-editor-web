@@ -4,6 +4,7 @@ import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import { SolidColorMaterial } from '@simple-render-engine/renderer/material/SolidColorMaterial';
 import { EngineScript } from '@simple-render-engine/renderer/script/EngineScript';
 import { SolidColor } from '@simple-render-engine/renderer/script/SolidColor';
+import { createHierarchyTree } from '@simple-render-engine/renderer/script/util';
 const DEFAULT_LINE_WIDTH = 2;
 export class ClippingFrame extends EngineScript {
     private __leftTopCtr: Node2D | null = null;
@@ -17,15 +18,78 @@ export class ClippingFrame extends EngineScript {
     declare node: Node2D;
     protected onLoad(): void {
         const ctrlMaterial = new SolidColorMaterial();
-        this.__leftTopCtr = new Node2D('left-top');
-        this.__rightTopCtr = new Node2D('right-top');
-        this.__leftBottomCtr = new Node2D('left-bottom');
-        this.__rightBottomCtr = new Node2D('right-bottom');
 
-        this.__hLine1 = new Node2D('h-line1', { anchorX: 0 });
-        this.__hLine2 = new Node2D('h-line2', { anchorX: 0 });
-        this.__vLine1 = new Node2D('v-line1', { anchorX: 0 });
-        this.__vLine2 = new Node2D('v-line2', { anchorX: 0 });
+        const hierarchyTree = createHierarchyTree([
+            {
+                name: 'lt',
+                options: {
+                    ref: 'lt',
+                },
+            },
+            {
+                name: 'rt',
+                options: {
+                    ref: 'rt',
+                },
+            },
+            {
+                name: 'lb',
+                options: {
+                    ref: 'lb',
+                },
+            },
+            {
+                name: 'rb',
+                options: {
+                    ref: 'rb',
+                },
+            },
+            {
+                name: 'hLine1',
+                options: {
+                    ref: 'hLine1',
+                    anchorX: 0,
+                },
+            },
+            {
+                name: 'hLine2',
+                options: {
+                    ref: 'hLine2',
+                },
+            },
+            {
+                name: 'vLine1',
+                options: {
+                    ref: 'vLine1',
+                },
+            },
+            {
+                name: 'vLine2',
+                options: {
+                    ref: 'vLine2',
+                },
+            },
+        ]);
+        const {
+            lt: __leftTopCtr,
+            rt: __rightTopCtr,
+            lb: __leftBottomCtr,
+            rb: __rightBottomCtr,
+            hLine1: __hLine1,
+            hLine2: __hLine2,
+            vLine1: __vLine1,
+            vLine2: __vLine2,
+        } = hierarchyTree;
+
+        this.__leftTopCtr = __leftTopCtr as Node2D;
+        this.__rightTopCtr = __rightTopCtr as Node2D;
+        this.__leftBottomCtr = __leftBottomCtr as Node2D;
+        this.__rightBottomCtr = __rightBottomCtr as Node2D;
+
+        this.__hLine1 = __hLine1 as Node2D;
+        this.__hLine2 = __hLine2 as Node2D;
+        this.__vLine1 = __vLine1 as Node2D;
+        this.__vLine2 = __vLine2 as Node2D;
 
         this.__addScript(this.__leftTopCtr, ctrlMaterial);
         this.__addScript(this.__rightTopCtr, ctrlMaterial);
