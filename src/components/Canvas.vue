@@ -76,7 +76,7 @@ const initScene = () => {
     sprite = imgDisplayNode.addScript(Sprite);
     root.addChildren(imgDisplayNode);
 
-    imgDisplayNode.on(Event.TOUCH, (e: TouchEvent) => {
+    imgDisplayNode.on(Event.TOUCH_START, (e: TouchEvent) => {
         console.log('click', e);
     });
 
@@ -84,7 +84,7 @@ const initScene = () => {
     node2.width = 100;
     node2.height = 100;
     const solidColor = node2.addScript(ClippingFrame);
-    node2.rotation = angle2Rad(45);
+    // node2.rotation = angle2Rad(45);
     // const mat = new SolidColorMaterial();
 
     // for (let i = -1; i <= 1; i++) {
@@ -104,9 +104,6 @@ const initScene = () => {
     node2.y = 0;
     root.addChildren(node2);
 
-    root.on(Event.TOUCH, (e: TouchEvent) => {
-        console.log('click from root');
-    });
     const cam = new Camera(0, width, 0, height, -100, 100, 'orthoCam');
     // new Mesh(geo, mat, root);
     scene.addChildren(root);

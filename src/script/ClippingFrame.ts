@@ -58,18 +58,21 @@ export class ClippingFrame extends EngineScript {
                 name: 'hLine2',
                 options: {
                     ref: 'hLine2',
+                    anchorX: 0,
                 },
             },
             {
                 name: 'vLine1',
                 options: {
                     ref: 'vLine1',
+                    anchorY: 0,
                 },
             },
             {
                 name: 'vLine2',
                 options: {
                     ref: 'vLine2',
+                    anchorY: 0,
                 },
             },
         ]);
@@ -109,18 +112,21 @@ export class ClippingFrame extends EngineScript {
             this.__rightTopCtr,
             this.__leftBottomCtr,
             this.__rightBottomCtr,
-            this.__hLine1
+            this.__hLine1,
+            this.__hLine2,
+            this.__vLine1,
+            this.__vLine2
         );
         this.__bindEvents();
     }
 
     private __bindEvents(): void {
-        this.node.on(Event.TOUCH, (e) => {
+        this.node.on(Event.TOUCH_START, e => {
             console.log('clipping frame', e);
         });
 
         if (this.__leftTopCtr) {
-            this.__leftTopCtr.on(Event.TOUCH, (e: TouchEvent) => {
+            this.__leftTopCtr.on(Event.TOUCH_START, (e: TouchEvent) => {
                 e.stopPropagation();
                 console.log(e);
             });
@@ -164,9 +170,41 @@ export class ClippingFrame extends EngineScript {
         this.__rightBottomCtr.y =
             this.node.y - this.node.anchorY * this.node.height;
 
+        this.__updateLine();
+    }
+
+    private __updateLine(): void {
+        if (
+            !this.__leftTopCtr ||
+            !this.__rightBottomCtr ||
+            !this.__rightTopCtr ||
+            !this.__leftBottomCtr ||
+            !this.__hLine1 ||
+            !this.__hLine2 ||
+            !this.__vLine1 ||
+            !this.__vLine2
+        ) {
+            return;
+        }
+
         this.__hLine1.x = this.__leftTopCtr.x;
         this.__hLine1.y = this.__leftTopCtr.y;
         this.__hLine1.width = this.__rightTopCtr.x - this.__leftTopCtr.x;
         this.__hLine1.height = DEFAULT_LINE_WIDTH;
+
+        this.__hLine2.x = this.__leftBottomCtr.x;
+        this.__hLine2.y = this.__leftBottomCtr.y;
+        this.__hLine2.width = this.__rightBottomCtr.x - this.__leftBottomCtr.x;
+        this.__hLine2.height = DEFAULT_LINE_WIDTH;
+
+        this.__vLine1.x = this.__leftBottomCtr.x;
+        this.__vLine1.y = this.__leftBottomCtr.y;
+        this.__vLine1.width = DEFAULT_LINE_WIDTH;
+        this.__vLine1.height = this.__leftTopCtr.y - this.__leftBottomCtr.y;
+
+        this.__vLine2.x = this.__rightBottomCtr.x;
+        this.__vLine2.y = this.__rightBottomCtr.y;
+        this.__vLine2.width = DEFAULT_LINE_WIDTH;
+        this.__vLine2.height = this.__rightTopCtr.y - this.__rightBottomCtr.y;
     }
 }
