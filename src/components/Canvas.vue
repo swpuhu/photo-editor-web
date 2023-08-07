@@ -7,7 +7,6 @@ import { Camera, Node, SimpleEngine } from '@simple-render-engine/renderer';
 import { Sprite } from '@simple-render-engine/renderer/script/Sprite';
 import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import { Event } from '@simple-render-engine/renderer/Event';
-import { angle2Rad } from '@simple-render-engine/renderer/script/util';
 
 let scene: Scene;
 let engine: SimpleEngine;

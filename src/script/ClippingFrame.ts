@@ -1,5 +1,6 @@
 import { Material } from '@simple-render-engine/renderer';
 import { Event, TouchEvent } from '@simple-render-engine/renderer/Event';
+import { globalEvent } from '@simple-render-engine/renderer/GlobalEvent';
 import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import { SolidColorMaterial } from '@simple-render-engine/renderer/material/SolidColorMaterial';
 import { EngineScript } from '@simple-render-engine/renderer/script/EngineScript';
@@ -8,7 +9,14 @@ import {
     angle2Rad,
     createHierarchyTree,
 } from '@simple-render-engine/renderer/script/util';
+import {
+    SizeInterface,
+    Vec2Interface,
+} from '@simple-render-engine/renderer/util';
+import { vec3 } from 'gl-matrix';
 const DEFAULT_LINE_WIDTH = 2;
+
+type CtrlButtonType = 'lt' | 'rt' | 'lb' | 'rb' | '';
 export class ClippingFrame extends EngineScript {
     private __leftTopCtr: Node2D | null = null;
     private __rightTopCtr: Node2D | null = null;
@@ -18,11 +26,22 @@ export class ClippingFrame extends EngineScript {
     private __hLine2: Node2D | null = null;
     private __vLine1: Node2D | null = null;
     private __vLine2: Node2D | null = null;
+
+    private __startSize: SizeInterface = { width: 0, height: 0 };
+    private __startPos: Vec2Interface = { x: 0, y: 0 };
+    private __prevLeftTop: Vec2Interface = { x: 0, y: 0 };
+    private __prevRightBottom: Vec2Interface = { x: 0, y: 0 };
+    private __touchingButton: CtrlButtonType = '';
     declare node: Node2D;
     protected onLoad(): void {
         const ctrlMaterial = new SolidColorMaterial();
-
         const hierarchyTree = createHierarchyTree([
+            {
+                name: 'center-clippingFrame',
+                options: {
+                    ref: 'center',
+                },
+            },
             {
                 name: 'lt',
                 options: {
@@ -85,6 +104,7 @@ export class ClippingFrame extends EngineScript {
             hLine2: __hLine2,
             vLine1: __vLine1,
             vLine2: __vLine2,
+            center: center,
         } = hierarchyTree;
 
         this.__leftTopCtr = __leftTopCtr as Node2D;
@@ -107,6 +127,8 @@ export class ClippingFrame extends EngineScript {
         this.__addScript(this.__vLine1, ctrlMaterial);
         this.__addScript(this.__vLine2, ctrlMaterial);
 
+        this.__addScript(center, ctrlMaterial);
+
         this.node.addChildren(
             this.__leftTopCtr,
             this.__rightTopCtr,
@@ -115,7 +137,8 @@ export class ClippingFrame extends EngineScript {
             this.__hLine1,
             this.__hLine2,
             this.__vLine1,
-            this.__vLine2
+            this.__vLine2,
+            center
         );
         this.__bindEvents();
     }
@@ -126,11 +149,112 @@ export class ClippingFrame extends EngineScript {
         });
 
         if (this.__leftTopCtr) {
-            this.__leftTopCtr.on(Event.TOUCH_START, (e: TouchEvent) => {
-                e.stopPropagation();
-                console.log(e);
-            });
+            this.__bindTouchStartEvent(this.__leftTopCtr, 'lt');
         }
+        if (this.__leftBottomCtr) {
+            this.__bindTouchStartEvent(this.__leftBottomCtr, 'lb');
+        }
+        if (this.__rightTopCtr) {
+            this.__bindTouchStartEvent(this.__rightTopCtr, 'rt');
+        }
+        if (this.__rightBottomCtr) {
+            this.__bindTouchStartEvent(this.__rightBottomCtr, 'rb');
+        }
+    }
+
+    private __bindTouchStartEvent(node: Node2D, type: CtrlButtonType) {
+        node.on(Event.TOUCH_START, (e: TouchEvent) => {
+            this.__touchingButton = type;
+            this.__onTouchStart(e);
+        });
+    }
+
+    private __onTouchStart(e: TouchEvent): void {
+        e.stopPropagation();
+        this.__startSize.width = this.node.width;
+        this.__startSize.height = this.node.height;
+        switch (this.__touchingButton) {
+            case 'lt':
+                this.__startPos = this.node.convertToWorldSpace({
+                    x: this.__leftTopCtr!.x,
+                    y: this.__leftTopCtr!.y,
+                });
+                break;
+            case 'lb':
+                this.__startPos = this.node.convertToWorldSpace({
+                    x: this.__leftBottomCtr!.x,
+                    y: this.__leftBottomCtr!.y,
+                });
+                break;
+            case 'rt':
+                this.__startPos = this.node.convertToWorldSpace({
+                    x: this.__rightTopCtr!.x,
+                    y: this.__rightTopCtr!.y,
+                });
+                break;
+            case 'rb':
+                this.__startPos = this.node.convertToWorldSpace({
+                    x: this.__rightBottomCtr!.x,
+                    y: this.__rightBottomCtr!.y,
+                });
+                break;
+        }
+        this.__prevRightBottom = this.node.convertToWorldSpace(
+            this.__rightBottomCtr!.position
+        );
+        this.__prevLeftTop = this.node.convertToWorldSpace(
+            this.__leftTopCtr!.position
+        );
+
+        globalEvent.on(Event.TOUCHING, this.__onTouching, this);
+        globalEvent.on(Event.TOUCH_END, this.__onTouchEnd, this);
+    }
+
+    private __onTouching(e: TouchEvent): void {
+        const { delta } = e;
+        console.log(e.deltaX);
+        const currentX = this.__startPos.x + delta.x;
+        const currentY = this.__startPos.y + delta.y;
+        switch (this.__touchingButton) {
+            case 'lt':
+                this.__updateByVertPos(
+                    { x: currentX, y: currentY },
+                    this.__prevRightBottom
+                );
+                break;
+            case 'lb':
+                this.__updateByVertPos(
+                    { x: currentX, y: this.__prevLeftTop.y },
+                    {
+                        x: this.__prevRightBottom.x,
+                        y: currentY,
+                    }
+                );
+                break;
+            case 'rt':
+                this.__updateByVertPos(
+                    { x: this.__prevLeftTop.x, y: currentY },
+                    {
+                        x: currentX,
+                        y: this.__prevRightBottom.y,
+                    }
+                );
+                break;
+            case 'rb':
+                this.__updateByVertPos(this.__prevLeftTop, {
+                    x: currentX,
+                    y: currentY,
+                });
+                break;
+        }
+    }
+
+    private __onTouchEnd(e: TouchEvent): void {
+        console.log('touchEnd', e);
+
+        globalEvent.off(Event.TOUCHING, this.__onTouching, this);
+        globalEvent.off(Event.TOUCH_END, this.__onTouchEnd, this);
+        console.log(globalEvent);
     }
 
     private __addScript(node: Node2D, material: Material): void {
@@ -153,24 +277,43 @@ export class ClippingFrame extends EngineScript {
         ) {
             return;
         }
-        this.__leftTopCtr.x = this.node.x - this.node.anchorX * this.node.width;
-        this.__leftTopCtr.y =
-            this.node.y + (1 - this.node.anchorY) * this.node.height;
-        this.__rightTopCtr.x =
-            this.node.x + (1 - this.node.anchorX) * this.node.width;
-        this.__rightTopCtr.y =
-            this.node.y + (1 - this.node.anchorY) * this.node.height;
+        this.__leftTopCtr.x = -this.node.anchorX * this.node.width;
+        this.__leftTopCtr.y = (1 - this.node.anchorY) * this.node.height;
+        this.__rightTopCtr.x = (1 - this.node.anchorX) * this.node.width;
+        this.__rightTopCtr.y = (1 - this.node.anchorY) * this.node.height;
 
-        this.__leftBottomCtr.x =
-            this.node.x - this.node.anchorX * this.node.width;
-        this.__leftBottomCtr.y =
-            this.node.y - this.node.anchorY * this.node.height;
-        this.__rightBottomCtr.x =
-            this.node.x + (1 - this.node.anchorX) * this.node.width;
-        this.__rightBottomCtr.y =
-            this.node.y - this.node.anchorY * this.node.height;
+        this.__leftBottomCtr.x = -this.node.anchorX * this.node.width;
+        this.__leftBottomCtr.y = -this.node.anchorY * this.node.height;
+        this.__rightBottomCtr.x = (1 - this.node.anchorX) * this.node.width;
+        this.__rightBottomCtr.y = -this.node.anchorY * this.node.height;
 
         this.__updateLine();
+    }
+
+    private __updateByVertPos(
+        ltWorld: Vec2Interface,
+        rbWorld: Vec2Interface
+    ): void {
+        console.log(ltWorld, rbWorld);
+        const left = ltWorld.x;
+        const top = ltWorld.y;
+        const right = rbWorld.x;
+        const bottom = rbWorld.y;
+
+        const width = right - left;
+        const height = top - bottom;
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+        this.node.width = width;
+        this.node.height = height;
+        const localPos = this.node.parent!.convertToNodeSpace({
+            x: left + width * this.node.anchorX,
+            y: bottom + height * this.node.anchorY,
+        });
+
+        this.node.x = localPos.x;
+        this.node.y = localPos.y;
     }
 
     private __updateLine(): void {
