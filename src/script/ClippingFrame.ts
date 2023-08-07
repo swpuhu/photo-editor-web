@@ -5,15 +5,11 @@ import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import { SolidColorMaterial } from '@simple-render-engine/renderer/material/SolidColorMaterial';
 import { EngineScript } from '@simple-render-engine/renderer/script/EngineScript';
 import { SolidColor } from '@simple-render-engine/renderer/script/SolidColor';
-import {
-    angle2Rad,
-    createHierarchyTree,
-} from '@simple-render-engine/renderer/script/util';
+import { createHierarchyTree } from '@simple-render-engine/renderer/script/util';
 import {
     SizeInterface,
     Vec2Interface,
 } from '@simple-render-engine/renderer/util';
-import { vec3 } from 'gl-matrix';
 const DEFAULT_LINE_WIDTH = 2;
 
 type CtrlButtonType = 'lt' | 'rt' | 'lb' | 'rb' | '';

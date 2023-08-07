@@ -7,6 +7,7 @@ import { Camera, Node, SimpleEngine } from '@simple-render-engine/renderer';
 import { Sprite } from '@simple-render-engine/renderer/script/Sprite';
 import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import { Event } from '@simple-render-engine/renderer/Event';
+import Profile from './Profile.vue';
 
 let scene: Scene;
 let engine: SimpleEngine;
@@ -15,9 +16,12 @@ let canvasDom: HTMLCanvasElement;
 let rootDom: HTMLElement;
 const canvasRef = ref(null);
 const rootRef = ref(null);
+const frameRate = ref(0);
+const drawCall = ref(0);
 
 let parentWidth = 0;
 let parentHeight = 0;
+
 let imgDisplayNode: Node2D;
 const globalStore = useGlobalStore();
 globalStore.$subscribe(async () => {
@@ -64,7 +68,6 @@ const initScene = () => {
     const height = canvasDom.height;
     console.log(width, height);
     engine = new SimpleEngine(gl!);
-    window.engine = engine;
     scene = new Scene('scene');
     const root = new Node('root');
     root.x = parentWidth / 2;
@@ -82,7 +85,7 @@ const initScene = () => {
     let node2 = new Node2D('test white');
     node2.width = 100;
     node2.height = 100;
-    const solidColor = node2.addScript(ClippingFrame);
+    node2.addScript(ClippingFrame);
     // node2.rotation = angle2Rad(45);
     // const mat = new SolidColorMaterial();
 
@@ -146,6 +149,7 @@ onUnmounted(() => {
             :height="500"
             ref="canvasRef"
         ></canvas>
+        <Profile :frame-rate="frameRate" :draw-call="drawCall" />
     </div>
 </template>
 
