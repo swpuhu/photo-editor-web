@@ -79,13 +79,13 @@ const initScene = () => {
     root.addChildren(imgDisplayNode);
 
     imgDisplayNode.on(Event.TOUCH_START, (e: TouchEvent) => {
-        console.log('click', e);
+        clippingFrame.adaptToNode(imgDisplayNode);
     });
 
     let node2 = new Node2D('test white');
     node2.width = 100;
     node2.height = 100;
-    node2.addScript(ClippingFrame);
+    const clippingFrame = node2.addScript(ClippingFrame);
     // node2.rotation = angle2Rad(45);
     // const mat = new SolidColorMaterial();
 

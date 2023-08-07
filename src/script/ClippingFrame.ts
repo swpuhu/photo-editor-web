@@ -25,8 +25,8 @@ export class ClippingFrame extends EngineScript {
 
     private __startSize: SizeInterface = { width: 0, height: 0 };
     private __startPos: Vec2Interface = { x: 0, y: 0 };
-    private __prevLeftTop: Vec2Interface = { x: 0, y: 0 };
-    private __prevRightBottom: Vec2Interface = { x: 0, y: 0 };
+    private __prevRightTop: Vec2Interface = { x: 0, y: 0 };
+    private __prevLeftBottom: Vec2Interface = { x: 0, y: 0 };
     private __touchingButton: CtrlButtonType = '';
     declare node: Node2D;
     protected onLoad(): void {
@@ -140,7 +140,7 @@ export class ClippingFrame extends EngineScript {
     }
 
     private __bindEvents(): void {
-        this.node.on(Event.TOUCH_START, e => {
+        this.node.on(Event.TOUCH_START, (e) => {
             console.log('clipping frame', e);
         });
 
@@ -195,11 +195,11 @@ export class ClippingFrame extends EngineScript {
                 });
                 break;
         }
-        this.__prevRightBottom = this.node.convertToWorldSpace(
-            this.__rightBottomCtr!.position
+        this.__prevLeftBottom = this.node.convertToWorldSpace(
+            this.__leftBottomCtr!.position
         );
-        this.__prevLeftTop = this.node.convertToWorldSpace(
-            this.__leftTopCtr!.position
+        this.__prevRightTop = this.node.convertToWorldSpace(
+            this.__rightTopCtr!.position
         );
 
         globalEvent.on(Event.TOUCHING, this.__onTouching, this);
@@ -214,33 +214,39 @@ export class ClippingFrame extends EngineScript {
         switch (this.__touchingButton) {
             case 'lt':
                 this.__updateByVertPos(
-                    { x: currentX, y: currentY },
-                    this.__prevRightBottom
-                );
-                break;
-            case 'lb':
-                this.__updateByVertPos(
-                    { x: currentX, y: this.__prevLeftTop.y },
                     {
-                        x: this.__prevRightBottom.x,
+                        x: currentX,
+                        y: this.__prevLeftBottom.y,
+                    },
+                    {
+                        x: this.__prevRightTop.x,
                         y: currentY,
                     }
                 );
                 break;
-            case 'rt':
+            case 'lb':
                 this.__updateByVertPos(
-                    { x: this.__prevLeftTop.x, y: currentY },
-                    {
-                        x: currentX,
-                        y: this.__prevRightBottom.y,
-                    }
+                    { x: currentX, y: currentY },
+                    this.__prevRightTop
                 );
                 break;
-            case 'rb':
-                this.__updateByVertPos(this.__prevLeftTop, {
+            case 'rt':
+                this.__updateByVertPos(this.__prevLeftBottom, {
                     x: currentX,
                     y: currentY,
                 });
+                break;
+            case 'rb':
+                this.__updateByVertPos(
+                    {
+                        x: this.__prevLeftBottom.x,
+                        y: currentY,
+                    },
+                    {
+                        x: currentX,
+                        y: this.__prevRightTop.y,
+                    }
+                );
                 break;
         }
     }
@@ -258,6 +264,17 @@ export class ClippingFrame extends EngineScript {
         node.width = 10;
         node.height = 10;
         solidColorScript.setMaterial(material);
+    }
+
+    public adaptToNode(node: Node2D): void {
+        const worldRect = node.getWorldRect();
+        this.__updateByVertPos(
+            { x: worldRect.x, y: worldRect.y },
+            {
+                x: worldRect.x + worldRect.width,
+                y: worldRect.y + worldRect.height,
+            }
+        );
     }
 
     protected onUpdate() {
@@ -287,14 +304,14 @@ export class ClippingFrame extends EngineScript {
     }
 
     private __updateByVertPos(
-        ltWorld: Vec2Interface,
-        rbWorld: Vec2Interface
+        lbWorld: Vec2Interface,
+        rtWorld: Vec2Interface
     ): void {
-        console.log(ltWorld, rbWorld);
-        const left = ltWorld.x;
-        const top = ltWorld.y;
-        const right = rbWorld.x;
-        const bottom = rbWorld.y;
+        console.log(lbWorld, rtWorld);
+        const left = lbWorld.x;
+        const top = rtWorld.y;
+        const right = rtWorld.x;
+        const bottom = lbWorld.y;
 
         const width = right - left;
         const height = top - bottom;
