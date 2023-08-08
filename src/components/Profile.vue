@@ -20,6 +20,18 @@ defineProps<{
 </template>
 
 <style scoped>
+.profile {
+    position: absolute;
+    top: 0;
+    font-size: medium;
+    background: rgba(255, 255, 255, 0.5);
+    min-width: 150px;
+}
+
+.profile-item {
+    display: flex;
+    justify-content: space-between;
+}
 .thumbnail img {
     width: 100%;
     font-size: 0;

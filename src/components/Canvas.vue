@@ -67,7 +67,7 @@ const initScene = () => {
     const width = canvasDom.width;
     const height = canvasDom.height;
     console.log(width, height);
-    engine = new SimpleEngine(gl!);
+    engine = new SimpleEngine(gl!, { frameRate: 15 });
     scene = new Scene('scene');
     const root = new Node('root');
     root.x = parentWidth / 2;
@@ -78,7 +78,7 @@ const initScene = () => {
     sprite = imgDisplayNode.addScript(Sprite);
     root.addChildren(imgDisplayNode);
 
-    imgDisplayNode.on(Event.TOUCH_START, (e: TouchEvent) => {
+    imgDisplayNode.on(Event.TOUCH_START, () => {
         clippingFrame.adaptToNode(imgDisplayNode);
     });
 
@@ -111,10 +111,19 @@ const initScene = () => {
     scene.addChildren(root);
 
     scene.addChildren(cam);
+    engine.on(SimpleEngine.BEFORE_RUN, onFrameRateChange);
+    engine.on(SimpleEngine.UPDATE_DRAW_CALL, onUpdateDrawCall);
     engine.setScene(scene);
     engine.run();
 };
 
+function onFrameRateChange(v: number) {
+    frameRate.value = v;
+}
+
+function onUpdateDrawCall(v: number) {
+    drawCall.value = v;
+}
 const destroyScene = () => {
     if (scene) {
         scene.destroy();

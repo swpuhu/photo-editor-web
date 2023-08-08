@@ -140,7 +140,7 @@ export class ClippingFrame extends EngineScript {
     }
 
     private __bindEvents(): void {
-        this.node.on(Event.TOUCH_START, (e) => {
+        this.node.on(Event.TOUCH_START, e => {
             console.log('clipping frame', e);
         });
 
