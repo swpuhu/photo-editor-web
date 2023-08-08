@@ -18,6 +18,7 @@ export const useFileStore = defineStore('file', () => {
                 if (file.type === 'image/png' || file.type === 'image/jpeg') {
                     const url = URL.createObjectURL(file);
                     fileUrls.value.push(url);
+                    fileNames.value.push(file.name);
                 }
             }
         }

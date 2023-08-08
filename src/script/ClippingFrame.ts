@@ -14,7 +14,7 @@ import {
 import { round } from 'lodash';
 const DEFAULT_LINE_WIDTH = 2;
 
-type CtrlButtonType = 'lt' | 'rt' | 'lb' | 'rb' | '';
+type CtrlButtonType = 'lt' | 'rt' | 'lb' | 'rb' | 'move' | '';
 
 const ADJUST_END = 'adjust_end';
 export class ClippingFrame extends EngineScript {
@@ -147,10 +147,7 @@ export class ClippingFrame extends EngineScript {
     }
 
     private __bindEvents(): void {
-        this.node.on(Event.TOUCH_START, e => {
-            console.log('clipping frame', e);
-        });
-
+        this.__bindTouchStartEvent(this.node, 'move');
         if (this.__leftTopCtr) {
             this.__bindTouchStartEvent(this.__leftTopCtr, 'lt');
         }
@@ -201,6 +198,9 @@ export class ClippingFrame extends EngineScript {
                     y: this.__rightBottomCtr!.y,
                 });
                 break;
+            case 'move':
+                this.__startPos = this.node.position;
+                break;
         }
         this.__prevLeftBottom = this.node.convertToWorldSpace(
             this.__leftBottomCtr!.position
@@ -215,7 +215,6 @@ export class ClippingFrame extends EngineScript {
 
     private __onTouching(e: TouchEvent): void {
         const { delta } = e;
-        console.log(e.deltaX);
         const currentX = this.__startPos.x + delta.x;
         const currentY = this.__startPos.y + delta.y;
         switch (this.__touchingButton) {
@@ -254,6 +253,10 @@ export class ClippingFrame extends EngineScript {
                         y: this.__prevRightTop.y,
                     }
                 );
+                break;
+            case 'move':
+                this.node.x = currentX;
+                this.node.y = currentY;
                 break;
         }
     }
@@ -356,7 +359,6 @@ export class ClippingFrame extends EngineScript {
         lbWorld: Vec2Interface,
         rtWorld: Vec2Interface
     ): void {
-        console.log(lbWorld, rtWorld);
         const left = lbWorld.x;
         const top = rtWorld.y;
         const right = rtWorld.x;

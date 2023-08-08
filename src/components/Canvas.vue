@@ -75,7 +75,7 @@ const initScene = () => {
     const height = canvasDom.height;
     console.log(width, height);
     engine = new SimpleEngine(gl!, {
-        frameRate: 15,
+        frameRate: 30,
         designedSize: {
             width: canvasDom.width,
             height: canvasDom.height,
@@ -99,10 +99,9 @@ const initScene = () => {
     imgDisplayNode.width = 0;
     imgDisplayNode.height = 0;
     sprite = imgDisplayNode.addScript(Sprite);
-    root.addChildren(imgDisplayNode);
-
     clippingNode = new Node2D('test white');
     clippingNode.width = 0;
+
     clippingNode.height = 0;
     clippingNode.active = false;
     const frame = clippingNode.addScript(ClippingFrame);
@@ -111,8 +110,6 @@ const initScene = () => {
         if (globalStore.currentIndex >= 0 && clippingInfo) {
             globalStore.addClippingInfo(globalStore.currentIndex, clippingInfo);
         }
-
-        console.log(clippingInfo);
     });
     clippingNode.x = 0;
     clippingNode.y = 0;
