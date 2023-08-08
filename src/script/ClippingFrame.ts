@@ -7,13 +7,18 @@ import { EngineScript } from '@simple-render-engine/renderer/script/EngineScript
 import { SolidColor } from '@simple-render-engine/renderer/script/SolidColor';
 import { createHierarchyTree } from '@simple-render-engine/renderer/script/util';
 import {
+    ClippingInfoInterface,
     SizeInterface,
     Vec2Interface,
 } from '@simple-render-engine/renderer/util';
+import { round } from 'lodash';
 const DEFAULT_LINE_WIDTH = 2;
 
 type CtrlButtonType = 'lt' | 'rt' | 'lb' | 'rb' | '';
+
+const ADJUST_END = 'adjust_end';
 export class ClippingFrame extends EngineScript {
+    static ADJUST_END: typeof ADJUST_END = ADJUST_END;
     private __leftTopCtr: Node2D | null = null;
     private __rightTopCtr: Node2D | null = null;
     private __leftBottomCtr: Node2D | null = null;
@@ -23,6 +28,7 @@ export class ClippingFrame extends EngineScript {
     private __vLine1: Node2D | null = null;
     private __vLine2: Node2D | null = null;
 
+    private __controlNode: Node2D | null = null;
     private __startSize: SizeInterface = { width: 0, height: 0 };
     private __startPos: Vec2Interface = { x: 0, y: 0 };
     private __prevRightTop: Vec2Interface = { x: 0, y: 0 };
@@ -31,6 +37,7 @@ export class ClippingFrame extends EngineScript {
     declare node: Node2D;
     protected onLoad(): void {
         const ctrlMaterial = new SolidColorMaterial();
+        ctrlMaterial.setProperty('u_color', [0.0, 0.5, 1.0, 1.0]);
         const hierarchyTree = createHierarchyTree([
             {
                 name: 'center-clippingFrame',
@@ -103,10 +110,10 @@ export class ClippingFrame extends EngineScript {
             center: center,
         } = hierarchyTree;
 
-        this.__leftTopCtr = __leftTopCtr as Node2D;
-        this.__rightTopCtr = __rightTopCtr as Node2D;
-        this.__leftBottomCtr = __leftBottomCtr as Node2D;
-        this.__rightBottomCtr = __rightBottomCtr as Node2D;
+        this.__leftTopCtr = __leftTopCtr;
+        this.__rightTopCtr = __rightTopCtr;
+        this.__leftBottomCtr = __leftBottomCtr;
+        this.__rightBottomCtr = __rightBottomCtr;
 
         this.__hLine1 = __hLine1 as Node2D;
         this.__hLine2 = __hLine2 as Node2D;
@@ -252,11 +259,9 @@ export class ClippingFrame extends EngineScript {
     }
 
     private __onTouchEnd(e: TouchEvent): void {
-        console.log('touchEnd', e);
-
         globalEvent.off(Event.TOUCHING, this.__onTouching, this);
         globalEvent.off(Event.TOUCH_END, this.__onTouchEnd, this);
-        console.log(globalEvent);
+        this.emit(ClippingFrame.ADJUST_END);
     }
 
     private __addScript(node: Node2D, material: Material): void {
@@ -266,13 +271,57 @@ export class ClippingFrame extends EngineScript {
         solidColorScript.setMaterial(material);
     }
 
-    public adaptToNode(node: Node2D): void {
+    public getClippingInfo(): ClippingInfoInterface | null {
+        if (!this.__controlNode) {
+            return null;
+        }
+        const controlNodeRect = this.__controlNode.getWorldRect();
+        const frameRect = this.node.getWorldRect();
+
+        const left = (frameRect.x - controlNodeRect.x) / controlNodeRect.width;
+        const bottom =
+            (frameRect.y - controlNodeRect.y) / controlNodeRect.height;
+        const right =
+            (controlNodeRect.x +
+                controlNodeRect.width -
+                frameRect.x -
+                frameRect.width) /
+            controlNodeRect.width;
+        const top =
+            (controlNodeRect.y +
+                controlNodeRect.height -
+                frameRect.y -
+                frameRect.height) /
+            controlNodeRect.height;
+
+        return {
+            left: round(left, 5),
+            right: round(right, 5),
+            top: round(top, 5),
+            bottom: round(bottom, 5),
+        };
+    }
+
+    public adaptToNode(
+        node: Node2D,
+        clippingInfo?: ClippingInfoInterface
+    ): void {
         const worldRect = node.getWorldRect();
+        this.__controlNode = node;
+        const { x, y, width, height } = worldRect;
+        let left, top, right, bottom;
+        left = top = right = bottom = 0;
+        if (clippingInfo) {
+            left = clippingInfo.left;
+            right = clippingInfo.right;
+            top = clippingInfo.top;
+            bottom = clippingInfo.bottom;
+        }
         this.__updateByVertPos(
-            { x: worldRect.x, y: worldRect.y },
+            { x: x + width * left, y: y + height * bottom },
             {
-                x: worldRect.x + worldRect.width,
-                y: worldRect.y + worldRect.height,
+                x: x + width - width * right,
+                y: y + height - height * top,
             }
         );
     }

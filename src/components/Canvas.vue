@@ -8,11 +8,11 @@ import { Sprite } from '@simple-render-engine/renderer/script/Sprite';
 import { GridBackgroundMaterial } from '@simple-render-engine/renderer/material/GridBackgroundMaterial';
 import { CustomQuadRenderScript } from '@simple-render-engine/renderer/script/CustomQuadRenderScript';
 import { Node2D } from '@simple-render-engine/renderer/Node2D';
-import { Event } from '@simple-render-engine/renderer/Event';
 import Profile from './Profile.vue';
 
 let scene: Scene;
 let engine: SimpleEngine;
+let clippingNode: Node2D;
 let sprite: Sprite;
 let canvasDom: HTMLCanvasElement;
 let rootDom: HTMLElement;
@@ -32,10 +32,13 @@ globalStore.$subscribe(async () => {
         return;
     }
     const currentUrl = globalStore.currentImg;
+    const currentIndex = globalStore.currentIndex;
     if (!currentUrl) {
         imgDisplayNode.active = false;
     }
+
     imgDisplayNode.active = true;
+    clippingNode.active = true;
     if (currentUrl && imgDisplayNode) {
         await sprite.setURL(currentUrl);
         const spriteAsp = sprite.rawWidth / sprite.rawHeight;
@@ -48,13 +51,10 @@ globalStore.$subscribe(async () => {
             imgDisplayNode.height = canvasDom.height - MARGIN;
             imgDisplayNode.width = (canvasDom.height - MARGIN) * spriteAsp;
         }
-        // engine.setViewSize(sprite.rawWidth, sprite.rawHeight);
+        const frame = clippingNode.getScript(ClippingFrame);
+        const clippingInfo = globalStore.getClippingInfo(currentIndex);
 
-        // aspect.value = canvasDom.width / canvasDom.height;
-        // styleWidth.value = computeWidth();
-        // styleHeight.value = computeHeight();
-        // computeStyleLeft();
-        // computeStyleTop();
+        frame!.adaptToNode(imgDisplayNode, clippingInfo);
     }
 });
 
@@ -96,39 +96,27 @@ const initScene = () => {
     gridMat.setProperty('u_resolution', [width, height]);
     backgroundRenderScript.setMaterial(gridMat);
 
-    imgDisplayNode.width = 10;
-    imgDisplayNode.height = 10;
+    imgDisplayNode.width = 0;
+    imgDisplayNode.height = 0;
     sprite = imgDisplayNode.addScript(Sprite);
     root.addChildren(imgDisplayNode);
 
-    imgDisplayNode.on(Event.TOUCH_START, () => {
-        clippingFrame.adaptToNode(imgDisplayNode);
+    clippingNode = new Node2D('test white');
+    clippingNode.width = 0;
+    clippingNode.height = 0;
+    clippingNode.active = false;
+    const frame = clippingNode.addScript(ClippingFrame);
+    frame.on(ClippingFrame.ADJUST_END, () => {
+        const clippingInfo = frame.getClippingInfo();
+        if (globalStore.currentIndex >= 0 && clippingInfo) {
+            globalStore.addClippingInfo(globalStore.currentIndex, clippingInfo);
+        }
+
+        console.log(clippingInfo);
     });
-
-    let node2 = new Node2D('test white');
-    node2.width = 100;
-    node2.height = 100;
-    node2.active = false;
-    const clippingFrame = node2.addScript(ClippingFrame);
-    // node2.rotation = angle2Rad(45);
-    // const mat = new SolidColorMaterial();
-
-    // for (let i = -1; i <= 1; i++) {
-    //     const nc1 = new Node2D('child1');
-    //     nc1.width = 10;
-    //     nc1.height = 10;
-    //     nc1.x = i * 100;
-    //     nc1.y = 50;
-
-    //     const comp = nc1.addScript(SolidColor);
-    //     comp.setMaterial(mat);
-    //     node2.addChildren(nc1);
-    // }
-
-    // solidColor.setMaterial(mat);
-    node2.x = 0;
-    node2.y = 0;
-    root.addChildren(backgroundNode, imgDisplayNode, node2);
+    clippingNode.x = 0;
+    clippingNode.y = 0;
+    root.addChildren(backgroundNode, imgDisplayNode, clippingNode);
 
     const cam = new Camera(0, width, 0, height, -100, 100, 'orthoCam');
     // new Mesh(geo, mat, root);
@@ -172,12 +160,6 @@ onUnmounted(() => {
     <div ref="rootRef" class="canvasContainer">
         <canvas
             class="canvas"
-            :style="{
-                // width: styleWidth + 'px',
-                // height: styleHeight + 'px',
-                // left: styleLeft + 'px',
-                // top: styleTop + 'px',
-            }"
             :width="500"
             :height="500"
             ref="canvasRef"
