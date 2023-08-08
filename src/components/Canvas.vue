@@ -9,6 +9,8 @@ import { GridBackgroundMaterial } from '@simple-render-engine/renderer/material/
 import { CustomQuadRenderScript } from '@simple-render-engine/renderer/script/CustomQuadRenderScript';
 import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import Profile from './Profile.vue';
+import { eventBus } from '@src/script/eventBus';
+import { ASPECT_CHANGE } from '@src/script/enum';
 
 let scene: Scene;
 let engine: SimpleEngine;
@@ -57,6 +59,12 @@ globalStore.$subscribe(async () => {
         frame!.adaptToNode(imgDisplayNode, clippingInfo);
     }
 });
+
+eventBus.on(ASPECT_CHANGE, (aspect: number) => {
+    if (engine) {
+        console.log(aspect);
+    }
+})
 
 const initScene = () => {
     console.log('init scene!');

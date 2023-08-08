@@ -2,6 +2,7 @@
 import ThumbnailList from './components/ThumbnailList.vue';
 import Canvas from './components/Canvas.vue';
 import { useFileStore } from './store/OpenFile';
+import ToolBox from './components/ToolBox.vue';
 const fileStore = useFileStore();
 </script>
 
@@ -12,6 +13,7 @@ const fileStore = useFileStore();
         </div>
         <div class="right">
             <Canvas></Canvas>
+            <ToolBox></ToolBox>
         </div>
     </div>
     <div class="open-button">

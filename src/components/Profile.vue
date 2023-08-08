@@ -9,12 +9,12 @@ defineProps<{
     <div class="profile">
         <div class="profile-item">
             <div>Frame Rate:</div>
-            <div>{{ $props.frameRate }}</div>
+            <div>{{ frameRate }}</div>
         </div>
 
         <div class="profile-item">
             <div>DrawCall:</div>
-            <div>{{ $props.drawCall }}</div>
+            <div>{{ drawCall }}</div>
         </div>
     </div>
 </template>

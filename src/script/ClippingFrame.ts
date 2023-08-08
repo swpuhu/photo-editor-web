@@ -34,6 +34,7 @@ export class ClippingFrame extends EngineScript {
     private __prevRightTop: Vec2Interface = { x: 0, y: 0 };
     private __prevLeftBottom: Vec2Interface = { x: 0, y: 0 };
     private __touchingButton: CtrlButtonType = '';
+    private __aspect: number | 'free' = 'free';
     declare node: Node2D;
     protected onLoad(): void {
         const ctrlMaterial = new SolidColorMaterial();
@@ -274,6 +275,20 @@ export class ClippingFrame extends EngineScript {
         solidColorScript.setMaterial(material);
     }
 
+    public setAspect(aspect: number) {
+        this.__aspect = aspect;
+        const currentAspect = this.node.width / this.node.height;
+        if (currentAspect === aspect) {
+            return;
+        }
+
+        if (aspect > currentAspect) {
+            this.node.height = this.node.width / aspect;
+        } else {
+            this.node.width = this.node.height * aspect;
+        }
+    }
+
     public getClippingInfo(): ClippingInfoInterface | null {
         if (!this.__controlNode) {
             return null;
@@ -302,6 +317,7 @@ export class ClippingFrame extends EngineScript {
             right: round(right, 5),
             top: round(top, 5),
             bottom: round(bottom, 5),
+            aspect: this.__aspect,
         };
     }
 

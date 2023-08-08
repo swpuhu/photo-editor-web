@@ -7,12 +7,14 @@ interface ClippingInfo {
     right: number;
     top: number;
     bottom: number;
+    aspect: number | 'free';
 }
 
 export const useGlobalStore = defineStore('global', () => {
     const fileStore = useFileStore();
 
     const currentIndex = ref(-1);
+    const globalAspect = ref(1);
     const localClippingMap = localStorage.getItem('clippingInfo');
 
     const clippingMap = ref<Record<string, ClippingInfo>>({});
@@ -49,6 +51,7 @@ export const useGlobalStore = defineStore('global', () => {
     return {
         currentIndex,
         currentImg,
+        globalAspect,
         setCurrentIndex,
         addClippingInfo,
         getClippingInfo,
