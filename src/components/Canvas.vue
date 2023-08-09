@@ -10,7 +10,8 @@ import { CustomQuadRenderScript } from '@simple-render-engine/renderer/script/Cu
 import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import Profile from './Profile.vue';
 import { eventBus } from '@src/script/eventBus';
-import { ASPECT_CHANGE } from '@src/script/enum';
+import { SET_ASPECT } from '@src/script/enum';
+import { useToolboxStore } from '@src/store/ToolBoxStore';
 
 let scene: Scene;
 let engine: SimpleEngine;
@@ -28,13 +29,13 @@ let parentHeight = 0;
 
 let imgDisplayNode: Node2D;
 const globalStore = useGlobalStore();
+const toolboxStore = useToolboxStore();
 const MARGIN = 50;
 globalStore.$subscribe(async () => {
     if (!canvasDom || !engine) {
         return;
     }
     const currentUrl = globalStore.currentImg;
-    const currentIndex = globalStore.currentIndex;
     if (!currentUrl) {
         imgDisplayNode.active = false;
     }
@@ -54,17 +55,26 @@ globalStore.$subscribe(async () => {
             imgDisplayNode.width = (canvasDom.height - MARGIN) * spriteAsp;
         }
         const frame = clippingNode.getScript(ClippingFrame);
-        const clippingInfo = globalStore.getClippingInfo(currentIndex);
-
-        frame!.adaptToNode(imgDisplayNode, clippingInfo);
+        const currentClipInfo = globalStore.getCurrentClippingInfo();
+        if (frame) {
+            frame.adaptToNode(imgDisplayNode, currentClipInfo);
+            if (toolboxStore.useGlobalAspect) {
+                frame.setAspect(toolboxStore.globalAspect);
+            } else if (currentClipInfo) {
+                frame.setAspect(currentClipInfo.aspect);
+            }
+        }
     }
 });
 
-eventBus.on(ASPECT_CHANGE, (aspect: number) => {
+eventBus.on(SET_ASPECT, (aspect: number) => {
     if (engine) {
-        console.log(aspect);
+        const frame = clippingNode.getScript(ClippingFrame);
+        if (frame) {
+            frame.setAspect(aspect);
+        }
     }
-})
+});
 
 const initScene = () => {
     console.log('init scene!');

@@ -1,26 +1,28 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { useFileStore } from './OpenFile';
+import { AspectType } from '@simple-render-engine/renderer/script/util';
+import { useLocalStorage } from './localStorageStore';
 
 interface ClippingInfo {
     left: number;
     right: number;
     top: number;
     bottom: number;
-    aspect: number | 'free';
+    aspect: AspectType;
 }
 
 export const useGlobalStore = defineStore('global', () => {
     const fileStore = useFileStore();
+    const storageStore = useLocalStorage();
 
     const currentIndex = ref(-1);
     const globalAspect = ref(1);
-    const localClippingMap = localStorage.getItem('clippingInfo');
 
-    const clippingMap = ref<Record<string, ClippingInfo>>({});
-    if (localClippingMap) {
-        clippingMap.value = JSON.parse(localClippingMap);
-    }
+    const clippingMap = storageStore.getItem('clippingInfo') as Record<
+        string,
+        ClippingInfo
+    >;
     const currentImg = computed(() => {
         if (currentIndex.value >= 0) {
             return fileStore.fileUrls[currentIndex.value];
@@ -29,23 +31,40 @@ export const useGlobalStore = defineStore('global', () => {
         return '';
     });
 
-    const saveClippingMap = () => {
-        localStorage.setItem('clippingInfo', JSON.stringify(clippingMap.value));
-    };
-
     const setCurrentIndex = (index: number) => {
         currentIndex.value = index;
     };
 
     const addClippingInfo = (index: number, clippingInfo: ClippingInfo) => {
         const fileName = fileStore.fileNames[index];
-        clippingMap.value[fileName] = clippingInfo;
-        saveClippingMap();
+        storageStore.setItemAndSave(clippingInfo, fileName);
     };
 
     const getClippingInfo = (index: number): ClippingInfo | undefined => {
         const fileName = fileStore.fileNames[index];
-        return clippingMap.value[fileName];
+        return storageStore.getItem(fileName);
+    };
+
+    const getCurrentClippingInfo = (): ClippingInfo | undefined => {
+        if (
+            currentIndex.value >= fileStore.fileNames.length ||
+            currentIndex.value < 0
+        ) {
+            return;
+        }
+        const fileName = fileStore.fileNames[currentIndex.value];
+        return storageStore.getItem(fileName);
+    };
+
+    const setCurrentClippingInfo = (v: ClippingInfo) => {
+        if (
+            currentIndex.value >= fileStore.fileNames.length ||
+            currentIndex.value < 0
+        ) {
+            return;
+        }
+        const fileName = fileStore.fileNames[currentIndex.value];
+        storageStore.setItemAndSave(v, fileName);
     };
 
     return {
@@ -55,5 +74,7 @@ export const useGlobalStore = defineStore('global', () => {
         setCurrentIndex,
         addClippingInfo,
         getClippingInfo,
+        getCurrentClippingInfo,
+        setCurrentClippingInfo,
     };
 });

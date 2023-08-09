@@ -1,27 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-
-
 const props = defineProps<{
     selectedName: string;
     unSelectedName: string;
     selected: boolean;
-    onClick?: (selected: boolean) => void;
-}>()
-
-const selected = ref(props.selected);
+    onClick?: () => void;
+}>();
 
 const onClick = () => {
-    console.log('click');
-    selected.value = !selected.value
-    props.onClick && props.onClick(selected.value);
-}
-
+    props.onClick && props.onClick();
+};
 </script>
 
 <template>
-    <div @click="onClick" :class="'checkbox ' + (selected ? 'active' : '') ">
-        <div class="content">{{ selected ? props.selectedName : props.unSelectedName }}</div>
+    <div
+        @click="onClick"
+        :class="'checkbox ' + (props.selected ? 'active' : '')"
+    >
+        <div class="content">
+            {{ selected ? props.selectedName : props.unSelectedName }}
+        </div>
     </div>
 </template>
 
@@ -32,6 +29,7 @@ const onClick = () => {
     padding: 5px;
     border-radius: 10px;
     min-width: 100px;
+    cursor: pointer;
 }
 
 .content {
@@ -40,6 +38,5 @@ const onClick = () => {
 
 .checkbox.active {
     background-color: #2ab656;
-
 }
 </style>

@@ -1,31 +1,87 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import {eventBus} from '../script/eventBus';
+import { computed, ref } from 'vue';
+import { eventBus } from '../script/eventBus';
 import CheckBox from './CheckBox.vue';
-import { ASPECT_CHANGE } from '@src/script/enum';
+import { SET_ASPECT } from '@src/script/enum';
+import Button from './Button.vue';
+import { useToolboxStore } from '../store/ToolBoxStore';
+import { useGlobalStore } from '../store/GlobalStore';
+import { AspectType } from '@simple-render-engine/renderer/script/util';
 
-const aspectValue = ref(1);
-const onBlur = () => {
-    eventBus.emit(ASPECT_CHANGE, aspectValue.value);
-}
-
+const toolboxStore = useToolboxStore();
+const globalStore = useGlobalStore();
+const inputRef = ref<HTMLInputElement | null>(null);
+const aspectValue = computed<AspectType>(() => {
+    if (toolboxStore.useGlobalAspect) {
+        return toolboxStore.globalAspect;
+    }
+    const currentClipInfo = globalStore.getCurrentClippingInfo();
+    if (currentClipInfo) {
+        return currentClipInfo.aspect;
+    }
+    return 'free';
+});
+const setAspect = () => {
+    const inputDom = inputRef.value as HTMLInputElement;
+    const value = inputDom ? inputDom.value : 'free';
+    console.log(value);
+    if (toolboxStore.useGlobalAspect) {
+        toolboxStore.setAspect(value === 'free' ? value : +value);
+        eventBus.emit(SET_ASPECT, value === 'free' ? value : +value);
+    } else {
+        const currentClipInfo = globalStore.getCurrentClippingInfo();
+        if (currentClipInfo) {
+            currentClipInfo.aspect = value === 'free' ? value : +value;
+            eventBus.emit(SET_ASPECT, currentClipInfo.aspect);
+            globalStore.setCurrentClippingInfo(currentClipInfo);
+        }
+    }
+};
+const checkBoxOnClick = () => {
+    toolboxStore.toggleAspect();
+    if (toolboxStore.useGlobalAspect) {
+        eventBus.emit(SET_ASPECT, toolboxStore.globalAspect);
+    } else {
+        const currentClipInfo = globalStore.getCurrentClippingInfo();
+        if (currentClipInfo) {
+            eventBus.emit(SET_ASPECT, currentClipInfo.aspect);
+        }
+    }
+};
 </script>
 
 <template>
     <div class="tool-aspect">
-        <div>Aspect: </div>
-        <input class="input" v-model="aspectValue" type="text" @blur="onBlur">
-        <CheckBox :selected="false"
-        :selected-name="'Use Global'"
-        :un-selected-name="'Use Local'"></CheckBox>
+        <div class="flex">
+            <div>Aspect:</div>
+            <input
+                ref="inputRef"
+                class="input"
+                :value="aspectValue"
+                type="text"
+                @blur="setAspect"
+            />
+        </div>
+        <div class="flex">
+            <CheckBox
+                :selected="toolboxStore.useGlobalAspect"
+                :selected-name="'Use Global'"
+                :un-selected-name="'Use Local'"
+                :on-click="checkBoxOnClick"
+            />
+            <Button button-name="Set Aspect" :on-click="setAspect" />
+        </div>
     </div>
 </template>
 
 <style scoped>
-.tool-aspect {
+.flex {
     display: flex;
     align-items: center;
     justify-content: space-around;
+    margin: 5px 0;
+}
+.tool-aspect {
     background: #cbf4f6;
     padding: 5px;
     border: 2px solid #3785e5;

@@ -5,7 +5,10 @@ import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import { SolidColorMaterial } from '@simple-render-engine/renderer/material/SolidColorMaterial';
 import { EngineScript } from '@simple-render-engine/renderer/script/EngineScript';
 import { SolidColor } from '@simple-render-engine/renderer/script/SolidColor';
-import { createHierarchyTree } from '@simple-render-engine/renderer/script/util';
+import {
+    AspectType,
+    createHierarchyTree,
+} from '@simple-render-engine/renderer/script/util';
 import {
     ClippingInfoInterface,
     SizeInterface,
@@ -34,7 +37,7 @@ export class ClippingFrame extends EngineScript {
     private __prevRightTop: Vec2Interface = { x: 0, y: 0 };
     private __prevLeftBottom: Vec2Interface = { x: 0, y: 0 };
     private __touchingButton: CtrlButtonType = '';
-    private __aspect: number | 'free' = 'free';
+    private __aspect: AspectType = 'free';
     declare node: Node2D;
     protected onLoad(): void {
         const ctrlMaterial = new SolidColorMaterial();
@@ -275,8 +278,11 @@ export class ClippingFrame extends EngineScript {
         solidColorScript.setMaterial(material);
     }
 
-    public setAspect(aspect: number) {
+    public setAspect(aspect: AspectType) {
         this.__aspect = aspect;
+        if (aspect === 'free') {
+            return;
+        }
         const currentAspect = this.node.width / this.node.height;
         if (currentAspect === aspect) {
             return;
