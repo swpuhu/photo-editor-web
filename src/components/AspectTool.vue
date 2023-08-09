@@ -21,22 +21,30 @@ const aspectValue = computed<AspectType>(() => {
     }
     return 'free';
 });
-const setAspect = () => {
+const setAspectAction = () => {
     const inputDom = inputRef.value as HTMLInputElement;
-    const value = inputDom ? inputDom.value : 'free';
-    console.log(value);
+    let value = inputDom ? inputDom.value : 'free';
+    value === 'free' ? value : +value;
+    if (typeof value === 'number' && isNaN(value)) {
+        value = 'free';
+    }
+    setAspect(value as AspectType);
+};
+
+const setAspect = (value: AspectType) => {
     if (toolboxStore.useGlobalAspect) {
-        toolboxStore.setAspect(value === 'free' ? value : +value);
-        eventBus.emit(SET_ASPECT, value === 'free' ? value : +value);
+        toolboxStore.setAspect(value);
+        eventBus.emit(SET_ASPECT, value);
     } else {
         const currentClipInfo = globalStore.getCurrentClippingInfo();
         if (currentClipInfo) {
-            currentClipInfo.aspect = value === 'free' ? value : +value;
+            currentClipInfo.aspect = value;
             eventBus.emit(SET_ASPECT, currentClipInfo.aspect);
             globalStore.setCurrentClippingInfo(currentClipInfo);
         }
     }
 };
+
 const checkBoxOnClick = () => {
     toolboxStore.toggleAspect();
     if (toolboxStore.useGlobalAspect) {
@@ -47,6 +55,10 @@ const checkBoxOnClick = () => {
             eventBus.emit(SET_ASPECT, currentClipInfo.aspect);
         }
     }
+};
+
+const resetAspect = () => {
+    console.log('reset aspect');
 };
 </script>
 
@@ -59,7 +71,7 @@ const checkBoxOnClick = () => {
                 class="input"
                 :value="aspectValue"
                 type="text"
-                @blur="setAspect"
+                @blur="setAspectAction"
             />
         </div>
         <div class="flex">
@@ -69,7 +81,8 @@ const checkBoxOnClick = () => {
                 :un-selected-name="'Use Local'"
                 :on-click="checkBoxOnClick"
             />
-            <Button button-name="Set Aspect" :on-click="setAspect" />
+            <Button button-name="Set Aspect" :on-click="setAspectAction" />
+            <Button button-name="Reset" :on-click="resetAspect" />
         </div>
     </div>
 </template>

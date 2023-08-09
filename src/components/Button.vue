@@ -22,6 +22,7 @@ const onClick = () => {
     border: 2px solid #3785e5;
     border-radius: 10px;
     cursor: pointer;
+    margin: 0 5px;
 }
 
 .button:active {

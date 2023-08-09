@@ -27,6 +27,7 @@ const onClick = () => {
     color: white;
     background-color: #95c0a2;
     padding: 5px;
+    margin: 0 5px;
     border-radius: 10px;
     min-width: 100px;
     cursor: pointer;
