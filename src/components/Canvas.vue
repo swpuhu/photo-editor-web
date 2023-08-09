@@ -10,7 +10,7 @@ import { CustomQuadRenderScript } from '@simple-render-engine/renderer/script/Cu
 import { Node2D } from '@simple-render-engine/renderer/Node2D';
 import Profile from './Profile.vue';
 import { eventBus } from '@src/script/eventBus';
-import { SET_ASPECT } from '@src/script/enum';
+import { RESET_CLIPPING, SET_ASPECT } from '@src/script/enum';
 import { useToolboxStore } from '@src/store/ToolBoxStore';
 
 let scene: Scene;
@@ -57,11 +57,10 @@ globalStore.$subscribe(async () => {
         const frame = clippingNode.getScript(ClippingFrame);
         const currentClipInfo = globalStore.getCurrentClippingInfo();
         if (frame) {
-            frame.adaptToNode(imgDisplayNode, currentClipInfo);
             if (toolboxStore.useGlobalAspect) {
-                frame.setAspect(toolboxStore.globalAspect);
+                frame.adaptToNode(imgDisplayNode, currentClipInfo, toolboxStore.globalAspect);
             } else if (currentClipInfo) {
-                frame.setAspect(currentClipInfo.aspect);
+                frame.adaptToNode(imgDisplayNode, currentClipInfo);
             }
         }
     }
@@ -72,6 +71,14 @@ eventBus.on(SET_ASPECT, (aspect: number) => {
         const frame = clippingNode.getScript(ClippingFrame);
         if (frame) {
             frame.setAspect(aspect);
+        }
+    }
+});
+eventBus.on(RESET_CLIPPING, () => {
+    if (engine) {
+        const frame = clippingNode.getScript(ClippingFrame);
+        if (frame) {
+            frame.reset();
         }
     }
 });
@@ -173,12 +180,7 @@ onUnmounted(() => {
 
 <template>
     <div ref="rootRef" class="canvasContainer">
-        <canvas
-            class="canvas"
-            :width="500"
-            :height="500"
-            ref="canvasRef"
-        ></canvas>
+        <canvas class="canvas" :width="500" :height="500" ref="canvasRef"></canvas>
         <Profile :frame-rate="frameRate" :draw-call="drawCall" />
     </div>
 </template>

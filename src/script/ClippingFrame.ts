@@ -278,6 +278,18 @@ export class ClippingFrame extends EngineScript {
         solidColorScript.setMaterial(material);
     }
 
+    public reset(): void {
+        if (this.__controlNode) {
+            this.adaptToNode(this.__controlNode, {
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                aspect: 'free',
+            });
+        }
+    }
+
     public setAspect(aspect: AspectType) {
         this.__aspect = aspect;
         if (aspect === 'free') {
@@ -329,7 +341,8 @@ export class ClippingFrame extends EngineScript {
 
     public adaptToNode(
         node: Node2D,
-        clippingInfo?: ClippingInfoInterface
+        clippingInfo: ClippingInfoInterface,
+        globalAspect?: AspectType
     ): void {
         const worldRect = node.getWorldRect();
         this.__controlNode = node;
@@ -349,6 +362,9 @@ export class ClippingFrame extends EngineScript {
                 y: y + height - height * top,
             }
         );
+        let aspect =
+            globalAspect === void 0 ? clippingInfo?.aspect : globalAspect;
+        this.setAspect(aspect);
     }
 
     protected onUpdate() {

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { eventBus } from '../script/eventBus';
 import CheckBox from './CheckBox.vue';
-import { SET_ASPECT } from '@src/script/enum';
+import { RESET_CLIPPING, SET_ASPECT } from '@src/script/enum';
 import Button from './Button.vue';
 import { useToolboxStore } from '../store/ToolBoxStore';
 import { useGlobalStore } from '../store/GlobalStore';
@@ -39,8 +39,9 @@ const setAspect = (value: AspectType) => {
         const currentClipInfo = globalStore.getCurrentClippingInfo();
         if (currentClipInfo) {
             currentClipInfo.aspect = value;
-            eventBus.emit(SET_ASPECT, currentClipInfo.aspect);
+
             globalStore.setCurrentClippingInfo(currentClipInfo);
+            eventBus.emit(SET_ASPECT, currentClipInfo.aspect);
         }
     }
 };
@@ -58,7 +59,19 @@ const checkBoxOnClick = () => {
 };
 
 const resetAspect = () => {
-    console.log('reset aspect');
+    const currentClipInfo = globalStore.getCurrentClippingInfo();
+    if (currentClipInfo) {
+        currentClipInfo.aspect = 'free';
+        currentClipInfo.top =
+            currentClipInfo.bottom =
+            currentClipInfo.right =
+            currentClipInfo.left =
+                0;
+
+        globalStore.setCurrentClippingInfo(currentClipInfo);
+        eventBus.emit(RESET_CLIPPING);
+    }
+    setAspect('free', true);
 };
 </script>
 
